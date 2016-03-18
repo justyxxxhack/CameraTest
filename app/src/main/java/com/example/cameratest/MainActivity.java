@@ -120,7 +120,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
     String mCurrentPhotoPath;
 
-    /*private File createImageFile() throws IOException {
+    private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -128,12 +128,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                 Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
-             //   ".jpg",         /* suffix */
-               // storageDir      /* directory */
-        /*);
+                ".jpg",         /* suffix */
+               storageDir      /* directory */
+        );
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
-    } */
+    }
 }
