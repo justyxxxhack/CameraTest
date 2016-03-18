@@ -57,10 +57,10 @@ public class MainActivity extends Activity implements SensorEventListener {
 	        mImageView.setImageBitmap(imageBitmap);
             TextView tv =(TextView) findViewById(R.id.textView);
             tv.setText(string);
-            //writeToFile(string);
+            writeToFile(string);
 	}
 }
-    /*private void writeToFile(String string) {
+    private void writeToFile(String string) {
         String filename = mCurrentPhotoPath +".txt";
         FileOutputStream outputStream;
 
@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }*/
+    }
     protected void onPause() {
         super.onPause();
         senSensorManager.unregisterListener(this);
@@ -86,8 +86,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	private void dispatchTakePictureIntent() {
 	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            /*// Create the File where the photo should go
+            // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile();
@@ -100,7 +99,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            }*/
+            }
         }
 	}
     @Override
