@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,14 +53,22 @@ public class MainActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-	        Bundle extras = data.getExtras();
+/*	        Bundle extras = data.getExtras();
 	        Bitmap imageBitmap = (Bitmap) extras.get("data");
 	        mImageView.setImageBitmap(imageBitmap);
-            TextView tv =(TextView) findViewById(R.id.textView);
+*/            TextView tv =(TextView) findViewById(R.id.textView);
             tv.setText(string);
             writeToFile(string);
+            galleryAddPic();
 	}
 }
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
     private void writeToFile(String string) {
         String filename = mCurrentPhotoPath +".txt";
         FileOutputStream outputStream;
@@ -85,7 +94,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	private void dispatchTakePictureIntent() {
 	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        //startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         //IOException trouble in creating file
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
@@ -94,7 +103,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-
+                ex.printStackTrace();
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -127,6 +136,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
+        Log.d("MY_TAG", imageFileName);
+        Log.d("MY_TAG", storageDir.getAbsolutePath());
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
@@ -135,6 +146,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        Log.d("MY_TAG", mCurrentPhotoPath);
         return image;
     }
 }
