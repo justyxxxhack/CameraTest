@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -38,7 +40,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        senSensorManager.registerListener(this, senAccelerometer , SensorManager.SENSOR_DELAY_NORMAL);
+        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 	}
 	public void onClick(View view){
 		if(view.getId()==R.id.button1) {
@@ -53,15 +55,50 @@ public class MainActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-/*	        Bundle extras = data.getExtras();
-	        Bitmap imageBitmap = (Bitmap) extras.get("data");
+	        Bundle extras = data.getExtras();
+	        Bitmap imageBitmap = rotate((Bitmap) extras.get("data"), (float) 232.2);
 	        mImageView.setImageBitmap(imageBitmap);
-*/            TextView tv =(TextView) findViewById(R.id.textView);
+            TextView tv =(TextView) findViewById(R.id.textView);
             tv.setText(string);
             writeToFile(string);
-            galleryAddPic();
+
+           // galleryAddPic();
+           // Bitmap bitmap = Bitmap.createBitmap(mCurrentPhotoPath);
 	}
 }
+    public static Bitmap rotate(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        source = Bitmap.createBitmap(source, 0, 0, source.getWidth(),source.getHeight(), matrix, false);
+        Matrix m = new Matrix();
+
+        RectF inRect = new RectF(0, 0, source.getWidth(), source.getHeight());
+        RectF outRect = new RectF(0, 0, source.getWidth()/8, source.getHeight()/8);
+        m.setRectToRect(inRect, outRect, Matrix.ScaleToFit.CENTER);
+        float[] values = new float[9];
+        m.getValues(values);
+
+        // resize bitmap
+        source = Bitmap.createScaledBitmap(source, (int) (source.getWidth() * values[0]), (int) (source.getHeight() * values[4]), true);
+
+        // save image
+       /* try
+        {
+            FileOutputStream out = new FileOutputStream(path);
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+        }
+        catch (Exception e)
+        {
+            Log.e("Image", e.getMessage(), e);
+        }
+    }
+    catch (IOException e)
+    {
+        Log.e("Image", e.getMessage(), e);
+    }*/
+        return source;
+    }
+
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(mCurrentPhotoPath);
@@ -94,9 +131,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	private void dispatchTakePictureIntent() {
 	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        //startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         //IOException trouble in creating file
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+        /*if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
             try {
@@ -111,7 +148,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                         Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
-        }
+        }*/
 	}
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
