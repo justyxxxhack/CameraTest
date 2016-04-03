@@ -10,17 +10,20 @@
         android:layout_height="wrap_content"
         android:onClick="onClick"
         android:text="Button"
-        android:layout_alignTop="@+id/imageView1"
-        android:layout_toLeftOf="@+id/textView"
-        android:layout_toStartOf="@+id/textView" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="600px"
         android:layout_height="400px"
-        android:layout_alignBottom="@+id/textView"
-        android:layout_alignRight="@+id/button1"
-        android:layout_alignEnd="@+id/button1" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/textView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -34,5 +37,15 @@
         android:layout_marginRight="43dp"
         android:layout_marginEnd="43dp"
         android:layout_marginBottom="49dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/textView2"
+        android:layout_alignTop="@+id/button1"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
