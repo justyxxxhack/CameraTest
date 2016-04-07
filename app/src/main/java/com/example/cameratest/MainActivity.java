@@ -33,10 +33,12 @@ public class MainActivity extends Activity implements SensorEventListener {
     float x,y,z,e,lx,ly,lz;
     String string;
     float angle;
+    boolean xy;
 
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        xy=true;
 		setContentView(R.layout.activity_main);
 		mImageView = (ImageView) findViewById(R.id.imageView1);
         senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -50,7 +52,21 @@ public class MainActivity extends Activity implements SensorEventListener {
             y=ly;
             z=lz;
             string = "x=" + Float.toString(x) +"y=" + Float.toString(y) + "z=" + Float.toString(z);
-            angle =(float) ((Math.atan(x/y) * 180) / Math.PI);
+            if (xy) {
+                angle = (float) ((Math.atan(y / x) * 180) / Math.PI);
+            } else {
+                angle = (float) ((Math.atan(x / y) * 180) / Math.PI);
+            }
+        }
+        if(view.getId()==R.id.button2) {
+            TextView tv =(TextView) findViewById(R.id.textView);
+            tv.setText("Put your phone parallel to the wall");
+            if (x>y) {
+                xy=true;
+            } else {
+                xy=false;
+            }
+
         }
 	}
 	@Override
@@ -60,7 +76,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	        Bitmap imageBitmap = rotate((Bitmap) extras.get("data"), (float) angle);
 	        mImageView.setImageBitmap(imageBitmap);
             TextView tv =(TextView) findViewById(R.id.textView);
-            tv.setText(string);
+            tv.setText(Float.toString(angle));
             writeToFile(string);
 
            // galleryAddPic();
@@ -70,7 +86,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     public static Bitmap rotate(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        //source = Bitmap.createBitmap(source, 0, 0, source.getWidth(),source.getHeight(), matrix, false);
+        source = Bitmap.createBitmap(source, 0, 0, source.getWidth(),source.getHeight(), matrix, false);
         Matrix m = new Matrix();
 
         RectF inRect = new RectF(0, 0, source.getWidth(), source.getHeight());
@@ -79,8 +95,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         float[] values = new float[9];
         m.getValues(values);
 
-        // resize bitmap
-        //source = Bitmap.createScaledBitmap(source, (int) (source.getWidth() * values[0]), (int) (source.getHeight() * values[4]), true);
+        //resize bitmap
+        source = Bitmap.createScaledBitmap(source, (int) (source.getWidth() * values[0]), (int) (source.getHeight() * values[4]), true);
 
         // save image
        /* try
