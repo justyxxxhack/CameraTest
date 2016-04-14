@@ -50,7 +50,10 @@ public class MainActivity extends Activity implements SensorEventListener {
             y=ly;
             z=lz;
             string = "x=" + Float.toString(x) +"y=" + Float.toString(y) + "z=" + Float.toString(z);
-            angle =(float) ((Math.atan(x/y) * 180) / Math.PI);
+            //for ASUS Zenfone
+            //angle =(float) ((Math.atan(y/x) * 180) / Math.PI);
+            //for Samsung Tablet
+            angle =(float) -((Math.atan(x/y) * 180) / Math.PI);
         }
 	}
 	@Override
@@ -58,66 +61,27 @@ public class MainActivity extends Activity implements SensorEventListener {
 	    if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 	        Bundle extras = data.getExtras();
 	        Bitmap imageBitmap = rotate((Bitmap) extras.get("data"), (float) angle);
+            createImageFileName();
+            saveImage(imageBitmap, imageFileName);
 	        mImageView.setImageBitmap(imageBitmap);
             TextView tv =(TextView) findViewById(R.id.textView);
             tv.setText(string);
-            writeToFile(string);
-
-           // galleryAddPic();
-           // Bitmap bitmap = Bitmap.createBitmap(mCurrentPhotoPath);
 	}
 }
     public static Bitmap rotate(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        //source = Bitmap.createBitmap(source, 0, 0, source.getWidth(),source.getHeight(), matrix, false);
-        Matrix m = new Matrix();
-
-        RectF inRect = new RectF(0, 0, source.getWidth(), source.getHeight());
-        RectF outRect = new RectF(0, 0, source.getWidth()/8, source.getHeight()/8);
-        m.setRectToRect(inRect, outRect, Matrix.ScaleToFit.CENTER);
-        float[] values = new float[9];
-        m.getValues(values);
-
-        // resize bitmap
-        //source = Bitmap.createScaledBitmap(source, (int) (source.getWidth() * values[0]), (int) (source.getHeight() * values[4]), true);
-
-        // save image
-       /* try
-        {
-            FileOutputStream out = new FileOutputStream(path);
-            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
-        }
-        catch (Exception e)
-        {
-            Log.e("Image", e.getMessage(), e);
-        }
-    }
-    catch (IOException e)
-    {
-        Log.e("Image", e.getMessage(), e);
-    }*/
+        source = Bitmap.createBitmap(source, 0, 0, source.getWidth(),source.getHeight(), matrix, false);
+//        Matrix m = new Matrix();
+//        RectF inRect = new RectF(0, 0, source.getWidth(), source.getHeight());
+//        RectF outRect = new RectF(source.getWidth()/4, source.getHeight()/4, source.getWidth()/2, source.getHeight()/2);
+//        m.setRectToRect(inRect, outRect, Matrix.ScaleToFit.CENTER);
+ //       float[] values = new float[9];
+ //       m.getValues(values);
+        //resize bitmap
+ ///       source = Bitmap.createScaledBitmap(source, source.getWidth(), source.getHeight(), true);
+        source = Bitmap.createBitmap(source, source.getWidth()/4, source.getHeight()/4, source.getWidth()/3,source.getHeight()/3);
         return source;
-    }
-
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-    private void writeToFile(String string) {
-        String filename = mCurrentPhotoPath +".txt";
-        FileOutputStream outputStream;
-
-        try {
-            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(string.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     protected void onPause() {
         super.onPause();
@@ -133,23 +97,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 	private void dispatchTakePictureIntent() {
 	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        //IOException trouble in creating file
-        /*if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                ex.printStackTrace();
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(photoFile));
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            }
-        }*/
 	}
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -170,25 +117,29 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-    String mCurrentPhotoPath;
+    private void saveImage(Bitmap finalBitmap, String image_name) {
+        //save image file to storage
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root);
+        myDir.mkdirs();
+        String fname = "Image-" + image_name+ ".jpg";
+        File file = new File(myDir, fname);
+        if (file.exists()) file.delete();
+        Log.i("LOAD", root + fname);
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    String imageFileName;
 
-    private File createImageFile() throws IOException {
+    private void createImageFileName(){
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        Log.d("MY_TAG", imageFileName);
-        Log.d("MY_TAG", storageDir.getAbsolutePath());
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-               storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-        Log.d("MY_TAG", mCurrentPhotoPath);
-        return image;
+        imageFileName = "JPEG_" + timeStamp + "_";
     }
 }
