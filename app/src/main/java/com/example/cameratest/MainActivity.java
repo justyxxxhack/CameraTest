@@ -54,9 +54,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             z = lz;
             string = "x=" + Float.toString(x) + "y=" + Float.toString(y) + "z=" + Float.toString(z);
             //for ASUS Zenfone
-            //angle =(float) ((Math.atan(y/x) * 180) / Math.PI);
+            angle =(float) ((Math.atan(y/x) * 180) / Math.PI);
             //for Samsung Tablet
-            angle = (float) -((Math.atan(x / y) * 180) / Math.PI);
+            //angle = (float) -((Math.atan(x / y) * 180) / Math.PI);
         }
     }
 
@@ -69,8 +69,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             createImageFileName();
             saveImage(imageBitmap, imageFileName);
             mImageView.setImageBitmap(imageBitmap);
-            TextView tv = (TextView) findViewById(R.id.textView);
-            tv.setText(string);
+
         }
     }
 
@@ -78,8 +77,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         //Method that rotates bitmap
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
+        int W = source.getWidth();
+        int H = source.getHeight();
         source = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, false);
-        source = Bitmap.createBitmap(source, source.getWidth() / 4, source.getHeight() / 4, source.getWidth() / 3, source.getHeight() / 3);
+        source = Bitmap.createBitmap(source, (int) Math.sqrt((W*W/2))/2, (int) Math.sqrt((W*W/2))/2, (int) (Math.sqrt((W*W/2))/2 + Math.sqrt((H*H/2))/2), (int) (Math.sqrt((W*W/2))/2 + Math.sqrt((H*H/2))/2));
         return source;
     }
 
@@ -110,10 +111,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             lz = sensorEvent.values[2];
         }
         //Output g values
-        TextView tv2 = (TextView) findViewById(R.id.textView2);
         String string2;
         string2 = "x=" + Float.toString(lx) + "y=" + Float.toString(ly) + "z=" + Float.toString(lz);
-        tv2.setText(string2);
+
 
     }
 
